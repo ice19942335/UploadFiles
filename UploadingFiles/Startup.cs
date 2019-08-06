@@ -29,7 +29,6 @@ namespace UploadingFiles
                 options.CheckConsentNeeded = context => true;
             });
 
-
             services.AddControllersWithViews();
             services.AddRazorPages();
         }
