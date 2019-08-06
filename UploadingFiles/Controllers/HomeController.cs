@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using UploadingFiles.AppInfrastucture.Services.Interfaces;
 using UploadingFiles.Models;
 
 namespace UploadingFiles.Controllers
@@ -14,9 +15,14 @@ namespace UploadingFiles.Controllers
     public class HomeController : Controller
     {
         private readonly IWebHostEnvironment _environment;
+        private readonly IFileService _fileService;
 
         // Constructor
-        public HomeController(IWebHostEnvironment environment) => _environment = environment;
+        public HomeController(IWebHostEnvironment environment, IFileService fileService)
+        {
+            _environment = environment;
+            _fileService = fileService;
+        }
 
         public IActionResult Index()
         {
@@ -28,8 +34,8 @@ namespace UploadingFiles.Controllers
             return View();
         }
 
-        [HttpPost("Upload")]
-        public async Task<IActionResult> Upload(List<IFormFile> files)
+        [HttpPost("UploadImages")]
+        public async Task<IActionResult> UploadImages(List<IFormFile> files)
         {
             long size = files.Sum(f => f.Length);
 
@@ -48,8 +54,8 @@ namespace UploadingFiles.Controllers
                     }
 
 
-                    var uniqueFileName = GetUniqueFileName($"image_{formFile.FileName}");
-                    var uploads = Path.Combine(_environment.WebRootPath, "uploads");
+                    var uniqueFileName = _fileService.GetUniqueFileName($"image_{formFile.FileName}");
+                    var uploads = Path.Combine(_environment.WebRootPath, "Uploads\\Images");
                     var filePath2 = Path.Combine(uploads, uniqueFileName);
                     formFile.CopyTo(new FileStream(filePath2, FileMode.Create));
                 }
@@ -65,15 +71,6 @@ namespace UploadingFiles.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-
-        private string GetUniqueFileName(string fileName)
-        {
-            fileName = Path.GetFileName(fileName);
-            return Path.GetFileNameWithoutExtension(fileName)
-                      + "_"
-                      + Guid.NewGuid().ToString().Substring(0, 4)
-                      + Path.GetExtension(fileName);
         }
     }
 }
