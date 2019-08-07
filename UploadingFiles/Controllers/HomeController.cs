@@ -46,12 +46,7 @@ namespace UploadingFiles.Controllers
         public IActionResult UploadImages(List<IFormFile> files)
         {
             _fileService.SaveFiles(files);
-
-            IEnumerable<string> images = _fileService.GetImagesList();
-            var viewModel = new UploadFilesViewModel
-            {
-                Images = images
-            };
+            var viewModel = new UploadFilesViewModel { Images = _fileService.GetImagesList() };
             return View("UploadFiles", viewModel);
         }
 
