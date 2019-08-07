@@ -10,6 +10,6 @@ namespace UploadingFiles.AppInfrastucture.Services.Interfaces
     {
         public string GetUniqueFileName(string fileName);
         public IEnumerable<string> GetImagesList();
-        public void SaveFiles(List<IFormFile> files);
+        public Task<List<string>> SaveFiles(List<IFormFile> files);
     }
 }

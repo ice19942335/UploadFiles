@@ -33,21 +33,31 @@ namespace UploadingFiles.Controllers
         {
             var images = Directory.EnumerateFiles(Path.Combine(_environment.WebRootPath, "Uploads\\Images"))
                 .Select(path => Path.GetFileName(path));
-
+            
             var viewModel = new UploadFilesViewModel
             {
-                Images = images
+                Images = images,
+                WrongTypeFiles = new List<string>()
             };
 
             return View(viewModel);
         }
 
         [HttpPost("UploadImages")]
-        public IActionResult UploadImages(List<IFormFile> files)
+        public async Task<IActionResult> UploadImages(List<IFormFile> files)
         {
-            _fileService.SaveFiles(files);
-            var viewModel = new UploadFilesViewModel { Images = _fileService.GetImagesList() };
-            return View("UploadFiles", viewModel);
+            List<string> wrongTypeFile = await _fileService.SaveFiles(files);
+
+            if (wrongTypeFile.Count > 0)
+            {
+                var viewModel = new UploadFilesViewModel { Images = _fileService.GetImagesList(), WrongTypeFiles = wrongTypeFile };
+                return View("UploadFiles", viewModel);
+            }
+            else
+            {
+                var viewModel = new UploadFilesViewModel { Images = _fileService.GetImagesList(), WrongTypeFiles = new List<string>() };
+                return View("UploadFiles", viewModel);
+            }
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

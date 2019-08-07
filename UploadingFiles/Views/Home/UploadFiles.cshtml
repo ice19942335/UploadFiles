@@ -3,6 +3,21 @@
     ViewData["Title"] = "Privacy Policy";
 }
 
+@{ 
+    if(Model.WrongTypeFiles.Count > 0)
+    {
+    <h4 style="color: red;">Wrong file type</h4>
+        <ul>
+            @{ 
+                foreach (string filename in Model.WrongTypeFiles)
+                {
+                    <li>@filename</li>
+                }
+            }
+        </ul>
+    }
+}
+
 <form method="post" enctype="multipart/form-data" asp-controller="Home" asp-action="UploadImages">
     <div class="form-group">
         <div class="col-md-10">
