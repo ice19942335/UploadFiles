@@ -1,4 +1,5 @@
-﻿@{
+﻿@model UploadFilesViewModel
+@{
     ViewData["Title"] = "Privacy Policy";
 }
 
@@ -15,3 +16,13 @@
         </div>
     </div>
 </form>
+
+@{
+    if (Model != null)
+    {
+        foreach (var image in Model.Images)
+        {
+            <img class="img" src="~/Uploads/Images/@image" alt="image" width="300"/>
+        }
+    }
+}

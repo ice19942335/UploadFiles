@@ -31,40 +31,28 @@ namespace UploadingFiles.Controllers
 
         public IActionResult UploadFiles()
         {
-            return View();
+            var images = Directory.EnumerateFiles(Path.Combine(_environment.WebRootPath, "Uploads\\Images"))
+                .Select(path => Path.GetFileName(path));
+
+            var viewModel = new UploadFilesViewModel
+            {
+                Images = images
+            };
+
+            return View(viewModel);
         }
 
         [HttpPost("UploadImages")]
-        public async Task<IActionResult> UploadImages(List<IFormFile> files)
+        public IActionResult UploadImages(List<IFormFile> files)
         {
-            long size = files.Sum(f => f.Length);
+            _fileService.SaveFiles(files);
 
-            var filePaths = new List<string>();
-            foreach (var formFile in files)
+            IEnumerable<string> images = _fileService.GetImagesList();
+            var viewModel = new UploadFilesViewModel
             {
-                if (formFile.Length > 0)
-                {
-                    // full path to file in temp location
-                    var filePath = Path.GetTempFileName();
-                    filePaths.Add(filePath);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await formFile.CopyToAsync(stream);
-                    }
-
-
-                    var uniqueFileName = _fileService.GetUniqueFileName($"image_{formFile.FileName}");
-                    var uploads = Path.Combine(_environment.WebRootPath, "Uploads\\Images");
-                    var filePath2 = Path.Combine(uploads, uniqueFileName);
-                    formFile.CopyTo(new FileStream(filePath2, FileMode.Create));
-                }
-            }
-
-            // process uploaded files
-            // Don't rely on or trust the FileName property without validation.
-
-            return Ok(new { count = files.Count, size, filePaths });
+                Images = images
+            };
+            return View("UploadFiles", viewModel);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
